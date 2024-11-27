@@ -33,10 +33,15 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
+    //s3
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
     //swagger
     implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.1.0'
     implementation group: 'io.swagger.core.v3', name: 'swagger-core-jakarta', version: '2.2.7'
 
+    //excel
+    implementation 'org.apache.poi:poi-ooxml:5.0.0'
 }
 
 tasks.named('test') {
