@@ -34,7 +34,7 @@ public class EZZ00MController {
     @ResponseBody
     @PostMapping(value="/multi", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary="줌 로그 분석 (n회차 전용)")
-    public ResponseEntity<?> getAnalyzedZoomLogForMultiSession(@RequestPart(value="zoomLogFile") List<MultipartFile> zoomLogFileList,
+    public ResponseEntity<?> getAnalyzedZoomLogForMultiSession(@RequestPart(value="zoomLogFileList") List<MultipartFile> zoomLogFileList,
                                                                @RequestParam(value="completionCount") int completionCount,
                                                                @RequestParam(value="completionTime") int completionTime) throws IOException {
         List<String> analyzedZoomLog = ezz00MService.getAnalyzedZoomLogForMultiSession(zoomLogFileList, completionCount, completionTime);
