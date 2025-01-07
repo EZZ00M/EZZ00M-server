@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Component
 public class CsvReader {
@@ -62,8 +64,24 @@ public class CsvReader {
     }
 
     private int extractStudentNumber(String nameWithId) {
+        //숫자가 연달아 7자인 경우
+        Pattern pattern = Pattern.compile("\\b\\d{7}\\b");
+        Matcher matcher = pattern.matcher(nameWithId);
+        if (matcher.find())
+            return Integer.parseInt(matcher.group());
+
+        //숫자가 총 7자인 경우
         String idString = nameWithId.replaceAll("[^0-9]", "");
-        return Integer.parseInt(idString);
+        if(idString.length()==7)
+            return Integer.parseInt(idString);
+
+        //숫자가 총 14자인 경우
+        if (idString.length() == 14 && idString.substring(0, 7).equals(idString.substring(7, 14)))
+            return Integer.parseInt(idString.substring(0, 7));
+
+        throw new IllegalArgumentException();
+
     }
+
 
 }
