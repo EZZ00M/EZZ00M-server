@@ -1,10 +1,5 @@
 package ezz00m.ezz00mserver.global.config;
 
-
-import io.swagger.v3.oas.models.Components;
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.security.SecurityScheme;
-import lombok.RequiredArgsConstructor;
 import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
@@ -17,8 +12,14 @@ public class SwaggerConfig {
 
     @Bean
     public OpenApiCustomizer customOpenApiCustomizer() {
-        return openApi -> openApi.info(apiInfo("checkmate API"));
+        return openApi -> openApi.info(apiInfo("ezz00m API"));
     }
+
+    @Bean
+    public OpenApiCustomizer userOpenApiCustomizer() {
+        return openApi -> openApi.info(apiInfo("ezz00m service"));
+    }
+
 
     @Bean
     public GroupedOpenApi userApi() {
@@ -26,6 +27,7 @@ public class SwaggerConfig {
                 .group("SERVICE")
                 .pathsToMatch("/api/**")
                 .addOpenApiCustomizer(customOpenApiCustomizer())
+                .addOpenApiCustomizer(userOpenApiCustomizer())
                 .build();
     }
 
@@ -35,6 +37,8 @@ public class SwaggerConfig {
                 .description("줌 로그 분석 시스템, EZZ00M")
                 .version("1.0.0");
     }
+}
+
 
 /*    @Bean
     public OpenAPI customOpenAPI() {
@@ -46,4 +50,4 @@ public class SwaggerConfig {
                         .name("Authorization")))
                 .info(apiInfo("EZZ00M API"));
     }*/
-}
+
