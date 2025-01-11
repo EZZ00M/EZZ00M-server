@@ -1,5 +1,7 @@
 package ezz00m.ezz00mserver.global.component;
 
+import ezz00m.ezz00mserver.global.codes.ErrorCode;
+import ezz00m.ezz00mserver.global.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -14,7 +16,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ExcelGenerator {
 
-    public Workbook generateOnlineAttendanceExcel(Map<Integer, Integer> successedTimeMap, List<Map<String, String>> failedTimeMap, int completionTime) {
+    public Workbook generateOnlineAttendanceExcel(Map<Integer, Integer> successedTimeMap, Map<String, Integer> failedTimeMap, int completionTime) {
         Workbook workbook = new XSSFWorkbook();
 
         // 성공 시간 시트 생성
@@ -23,14 +25,13 @@ public class ExcelGenerator {
 
         // 실패 시간 시트 생성
         Sheet failedSheet = workbook.createSheet("분석 실패한 접속 시간");
-        createAttendanceSheetForFailed(failedSheet, failedTimeMap);
+        createAttendanceSheetForFailed(failedSheet, failedTimeMap, completionTime);
 
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             workbook.write(outputStream);
             return workbook;
         } catch (IOException e) {
-            e.printStackTrace();
-            return null;
+            throw new GeneralException(ErrorCode.ANALYZED_FAIL);
         }
     }
 
@@ -48,23 +49,57 @@ public class ExcelGenerator {
             Row row = sheet.createRow(rowNum++);
             row.createCell(0).setCellValue(entry.getKey());
             row.createCell(1).setCellValue(entry.getValue());
-            row.createCell(2).setCellValue(completionTime < entry.getValue() ? "O" : "X");
+            row.createCell(2).setCellValue(completionTime <= entry.getValue() ? "O" : "X");
         }
     }
 
     // 실패 데이터 시트 생성
-    private void createAttendanceSheetForFailed(Sheet sheet, List<Map<String, String>> failedData) {
+    private void createAttendanceSheetForFailed(Sheet sheet, Map<String, Integer> timeMap, int completionTime) {
         // 헤더 생성
         Row headerRow = sheet.createRow(0);
         headerRow.createCell(0).setCellValue("이름");
         headerRow.createCell(1).setCellValue("접속 시간");
+        headerRow.createCell(2).setCellValue("이수 여부");
 
         // 데이터 추가
         int rowNum = 1;
-        for (Map<String, String> failedRow : failedData) {
+        for (Map.Entry<String, Integer> entry : timeMap.entrySet()) {
             Row row = sheet.createRow(rowNum++);
-            row.createCell(0).setCellValue(failedRow.get("name"));
-            row.createCell(1).setCellValue(failedRow.get("accessTime"));
+            row.createCell(0).setCellValue(entry.getKey());
+            row.createCell(1).setCellValue(entry.getValue());
+            row.createCell(2).setCellValue(completionTime <= entry.getValue() ? "O" : "X");
+        }
+    }
+
+    //전체 이수 여부 파일 workbook 생성
+    public Workbook generateTotalOnlineAttendanceExcel(Map<Integer, Integer> successedTimeMap, int completionCount) {
+        Workbook workbook = new XSSFWorkbook();
+
+        Sheet successSheet = workbook.createSheet("전체 이수 여부");
+        createTotalAttendanceSheet(successSheet, successedTimeMap, completionCount);
+
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            workbook.write(outputStream);
+            return workbook;
+        } catch (IOException e) {
+            throw new GeneralException(ErrorCode.ANALYZED_FAIL);
+        }
+    }
+
+    private void createTotalAttendanceSheet(Sheet sheet, Map<Integer, Integer> timeMap, int completionCount) {
+        // 헤더 생성
+        Row headerRow = sheet.createRow(0);
+        headerRow.createCell(0).setCellValue("학번");
+        headerRow.createCell(1).setCellValue("이수 횟수");
+        headerRow.createCell(2).setCellValue("이수 여부");
+
+        // 데이터 추가
+        int rowNum = 1;
+        for (Map.Entry<Integer, Integer> entry : timeMap.entrySet()) {
+            Row row = sheet.createRow(rowNum++);
+            row.createCell(0).setCellValue(entry.getKey());
+            row.createCell(1).setCellValue(entry.getValue());
+            row.createCell(2).setCellValue(completionCount <= entry.getValue() ? "O" : "X");
         }
     }
 

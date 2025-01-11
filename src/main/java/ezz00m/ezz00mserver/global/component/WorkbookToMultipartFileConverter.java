@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 @Component
 public class WorkbookToMultipartFileConverter {
@@ -17,8 +18,7 @@ public class WorkbookToMultipartFileConverter {
 
         return new MultipartFile() {
             @Override
-            public String getName() {
-                return fileName;
+            public String getName() { return fileName;
             }
 
             @Override

@@ -1,9 +1,8 @@
-package ezz00m.ezz00mserver.global.domain;
+package ezz00m.ezz00mserver.global.dto;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import java.util.List;
 import java.util.Map;
 
 import static lombok.AccessLevel.PRIVATE;
@@ -12,9 +11,9 @@ import static lombok.AccessLevel.PRIVATE;
 @RequiredArgsConstructor(access=PRIVATE)
 public class CsvResultDto {
     private final Map<Integer, Integer> successedTimeMap;
-    private final List<Map<String, String>> failedTimeMap;
+    private final Map<String, Integer> failedTimeMap;
 
-    public static CsvResultDto of(Map<Integer, Integer> studentTimeMap, List<Map<String, String>> failedTimeMap) {
+    public static CsvResultDto of(Map<Integer, Integer> studentTimeMap, Map<String, Integer> failedTimeMap) {
         return new CsvResultDto(studentTimeMap, failedTimeMap);
     }
 

@@ -1,18 +1,19 @@
 package ezz00m.ezz00mserver.global.component;
 
-import ezz00m.ezz00mserver.global.domain.CsvResultDto;
+import ezz00m.ezz00mserver.global.dto.CsvResultDto;
+import ezz00m.ezz00mserver.global.exception.GeneralException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static ezz00m.ezz00mserver.global.codes.ErrorCode.ANALYZED_FAIL;
 
 @Component
 public class CsvReader {
@@ -23,10 +24,9 @@ public class CsvReader {
         this.excelGenerator = excelGenerator;
     }
 
-
     public CsvResultDto parseCsvFile(MultipartFile file) {
-        Map<Integer, Integer> studentTimeMap = new HashMap<>();
-        List<Map<String, String>> failedRows = new ArrayList<>();
+        Map<Integer, Integer> successRows = new HashMap<>();
+        Map<String, Integer> failedRows = new HashMap<>();
 
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
@@ -43,24 +43,27 @@ public class CsvReader {
                 try {
                     String[] columns = line.split(",");
                     String nameWithId = columns[0];
-                    int timeInMinutes = Integer.parseInt(columns[4]);
+                    int accessTime = Integer.parseInt(columns[4]);
 
                     int studentId = extractStudentNumber(nameWithId);
 
-                    studentTimeMap.merge(studentId, timeInMinutes, Integer::sum);
+                    successRows.merge(studentId, accessTime, Integer::sum);
                 } catch (Exception e) {
-                    String[] columns = line.split(",");
-                    Map<String, String> failedRow = new HashMap<>();
-                    failedRow.put("name", columns[0]);
-                    failedRow.put("accessTime", columns[4]);
-                    failedRows.add(failedRow);                }
+                    try {
+                        String[] columns = line.split(",");
+                        String name = columns[0];
+                        int accessTime = Integer.parseInt(columns[4]);
+
+                        failedRows.merge(name, accessTime, Integer::sum);
+                    } catch (Exception innerException) {
+                        throw new GeneralException(ANALYZED_FAIL);
+                    }
+                }
             }
-
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new GeneralException(ANALYZED_FAIL);
         }
-
-        return CsvResultDto.of(studentTimeMap, failedRows);
+        return CsvResultDto.of(successRows, failedRows);
     }
 
     private int extractStudentNumber(String nameWithId) {
@@ -80,8 +83,6 @@ public class CsvReader {
             return Integer.parseInt(idString.substring(0, 7));
 
         throw new IllegalArgumentException();
-
     }
-
 
 }
