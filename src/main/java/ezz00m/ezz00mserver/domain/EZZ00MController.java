@@ -1,5 +1,7 @@
 package ezz00m.ezz00mserver.domain;
 
+import ezz00m.ezz00mserver.global.dto.MultiResponseDto;
+import ezz00m.ezz00mserver.global.dto.SingleResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +29,7 @@ public class EZZ00MController {
     @Operation(summary="줌 로그 분석 (1회차 전용)")
     public ResponseEntity<?> getAnalyzedZoomLogForSingleSession(@RequestPart(value="zoomLogFile") MultipartFile zoomLogFile,
                                                                 @RequestParam(value="completionTime") int completionTime) throws IOException {
-        String analyzedZoomLog = ezz00MService.getAnalyzedZoomLogForSingleSession(zoomLogFile, completionTime);
+        SingleResponseDto analyzedZoomLog = ezz00MService.getAnalyzedZoomLogForSingleSession(zoomLogFile, completionTime);
         return ResponseEntity.ok(analyzedZoomLog);
     }
 
@@ -37,7 +39,7 @@ public class EZZ00MController {
     public ResponseEntity<?> getAnalyzedZoomLogForMultiSession(@RequestPart(value="zoomLogFileList") List<MultipartFile> zoomLogFileList,
                                                                @RequestParam(value="completionCount") int completionCount,
                                                                @RequestParam(value="completionTime") int completionTime) throws IOException {
-        List<String> analyzedZoomLog = ezz00MService.getAnalyzedZoomLogForMultiSession(zoomLogFileList, completionCount, completionTime);
+        MultiResponseDto analyzedZoomLog = ezz00MService.getAnalyzedZoomLogForMultiSession(zoomLogFileList, completionCount, completionTime);
         return ResponseEntity.ok(analyzedZoomLog);
     }
 
