@@ -25,7 +25,7 @@ public class CsvReader {
     }
 
     public CsvResultDto parseCsvFile(MultipartFile file) {
-        Map<Integer, Integer> successRows = new HashMap<>();
+        Map<String, Map<Integer, Integer>> successRows = new HashMap<>();
         Map<String, Integer> failedRows = new HashMap<>();
 
         try (BufferedReader reader = new BufferedReader(
@@ -47,7 +47,8 @@ public class CsvReader {
 
                     int studentId = extractStudentNumber(nameWithId);
 
-                    successRows.merge(studentId, accessTime, Integer::sum);
+                    successRows.computeIfAbsent(nameWithId, k -> new HashMap<>())
+                            .merge(studentId, accessTime, Integer::sum);
                 } catch (Exception e) {
                     try {
                         String[] columns = line.split(",");

@@ -10,10 +10,10 @@ import static lombok.AccessLevel.PRIVATE;
 @Getter
 @RequiredArgsConstructor(access=PRIVATE)
 public class CsvResultDto {
-    private final Map<Integer, Integer> successedTimeMap;
+    private final Map<String, Map<Integer, Integer>> successedTimeMap;
     private final Map<String, Integer> failedTimeMap;
 
-    public static CsvResultDto of(Map<Integer, Integer> studentTimeMap, Map<String, Integer> failedTimeMap) {
+    public static CsvResultDto of(Map<String, Map<Integer, Integer>> studentTimeMap, Map<String, Integer> failedTimeMap) {
         return new CsvResultDto(studentTimeMap, failedTimeMap);
     }
 

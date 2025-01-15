@@ -16,7 +16,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ExcelGenerator {
 
-    public Workbook generateOnlineAttendanceExcel(Map<Integer, Integer> successedTimeMap, Map<String, Integer> failedTimeMap, int completionTime) {
+    public Workbook generateOnlineAttendanceExcel(Map<String, Map<Integer, Integer>> successedTimeMap, Map<String, Integer> failedTimeMap, int completionTime) {
         Workbook workbook = new XSSFWorkbook();
 
         // 성공 시간 시트 생성
@@ -36,22 +36,33 @@ public class ExcelGenerator {
     }
 
     // 성공 데이터 시트 생성
-    private void createAttendanceSheetForSuccess(Sheet sheet, Map<Integer, Integer> timeMap, int completionTime) {
+    private void createAttendanceSheetForSuccess(Sheet sheet, Map<String, Map<Integer, Integer>> successedTimeMap, int completionTime) {
         // 헤더 생성
         Row headerRow = sheet.createRow(0);
-        headerRow.createCell(0).setCellValue("학번");
-        headerRow.createCell(1).setCellValue("접속 시간");
-        headerRow.createCell(2).setCellValue("이수 여부");
+        headerRow.createCell(0).setCellValue("이름");
+        headerRow.createCell(1).setCellValue("학번");
+        headerRow.createCell(2).setCellValue("접속 시간");
+        headerRow.createCell(3).setCellValue("이수 여부");
 
         // 데이터 추가
         int rowNum = 1;
-        for (Map.Entry<Integer, Integer> entry : timeMap.entrySet()) {
-            Row row = sheet.createRow(rowNum++);
-            row.createCell(0).setCellValue(entry.getKey());
-            row.createCell(1).setCellValue(entry.getValue());
-            row.createCell(2).setCellValue(completionTime <= entry.getValue() ? "O" : "X");
+        for (Map.Entry<String, Map<Integer, Integer>> outerEntry : successedTimeMap.entrySet()) {
+            String nameWithId = outerEntry.getKey();
+            Map<Integer, Integer> studentTimeMap = outerEntry.getValue();
+
+            for (Map.Entry<Integer, Integer> innerEntry : studentTimeMap.entrySet()) {
+                Integer studentId = innerEntry.getKey();
+                Integer totalAccessTime = innerEntry.getValue();
+
+                Row row = sheet.createRow(rowNum++);
+                row.createCell(0).setCellValue(nameWithId);
+                row.createCell(1).setCellValue(studentId);
+                row.createCell(2).setCellValue(totalAccessTime);
+                row.createCell(3).setCellValue(completionTime <= totalAccessTime ? "O" : "X");
+            }
         }
     }
+
 
     // 실패 데이터 시트 생성
     private void createAttendanceSheetForFailed(Sheet sheet, Map<String, Integer> timeMap, int completionTime) {
