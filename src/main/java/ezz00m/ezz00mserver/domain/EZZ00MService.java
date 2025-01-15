@@ -47,10 +47,16 @@ public class EZZ00MService {
             time++;
             CsvResultDto csvResultDto = csvReader.parseCsvFile(zoomLogFile);
 
-            for (Map.Entry<Integer, Integer> entry : csvResultDto.getSuccessedTimeMap().entrySet()) {
-                Integer studentId = entry.getKey();
-                Integer currentCompletionCount = completionDto.getCompletionTimes().getOrDefault(studentId, 0);
-                completionDto.getCompletionTimes().put(studentId, currentCompletionCount + 1);
+            for (Map.Entry<String, Map<Integer, Integer>> outerEntry : csvResultDto.getSuccessedTimeMap().entrySet()) {
+                Map<Integer, Integer> studentTimeMap = outerEntry.getValue();
+
+                for (Map.Entry<Integer, Integer> entry : studentTimeMap.entrySet()) {
+                    Integer studentId = entry.getKey();
+                    Integer accessTime = entry.getValue();
+                    Integer currentCompletionCount = completionDto.getCompletionTimes().getOrDefault(studentId, 0);
+                    if (accessTime >= completionTime)
+                        completionDto.getCompletionTimes().put(studentId, currentCompletionCount + 1);
+                }
             }
 
             Workbook workbook = excelGenerator.generateOnlineAttendanceExcel(csvResultDto.getSuccessedTimeMap(), csvResultDto.getFailedTimeMap(), completionTime);
